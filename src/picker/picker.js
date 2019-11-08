@@ -186,4 +186,8 @@ export default class Picker extends EventEmitter {
     let wheel = this.wheels[index];
     wheel.wheelTo(dist);
   }
+
+  setSelectedIndex(selectedIndex) {
+    this.selectedIndex = selectedIndex;
+  }
 }
