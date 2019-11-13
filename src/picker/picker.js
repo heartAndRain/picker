@@ -21,24 +21,7 @@ export default class Picker extends EventEmitter {
       selectedIndex: null,
       showCls: 'show'
     };
-
     extend(this.options, options);
-
-    this.data = this.options.data;
-    this.pickerEl = createDom(pickerTemplate({
-      data: this.data,
-      title: this.options.title
-    }));
-
-    document.body.appendChild(this.pickerEl);
-
-    this.maskEl = this.pickerEl.getElementsByClassName('mask-hook')[0];
-    this.wheelEl = this.pickerEl.getElementsByClassName('wheel-hook');
-    this.panelEl = this.pickerEl.getElementsByClassName('panel-hook')[0];
-    this.confirmEl = this.pickerEl.getElementsByClassName('confirm-hook')[0];
-    this.cancelEl = this.pickerEl.getElementsByClassName('cancel-hook')[0];
-    this.scrollEl = this.pickerEl.getElementsByClassName('wheel-scroll-hook');
-
     this._init();
   }
 
@@ -51,6 +34,26 @@ export default class Picker extends EventEmitter {
       for (let i = 0; i < this.data.length; i++) {
         this.selectedIndex[i] = 0;
       }
+    }
+
+    this.data = this.options.data;
+    this.pickerEl = createDom(pickerTemplate({
+      data: this.data,
+      title: this.options.title,
+      selectedIndex: this.setSelectedIndex
+    }));
+
+    document.body.appendChild(this.pickerEl);
+
+    this.maskEl = this.pickerEl.getElementsByClassName('mask-hook')[0];
+    this.wheelEl = this.pickerEl.getElementsByClassName('wheel-hook');
+    this.panelEl = this.pickerEl.getElementsByClassName('panel-hook')[0];
+    this.confirmEl = this.pickerEl.getElementsByClassName('confirm-hook')[0];
+    this.cancelEl = this.pickerEl.getElementsByClassName('cancel-hook')[0];
+    this.scrollEl = this.pickerEl.getElementsByClassName('wheel-scroll-hook');
+
+    for (let i = 0; i < this.selectedIndex.length; i++) {
+      this._setActiveClass(i, this.selectedIndex[i]);
     }
 
     this._bindEvent();
@@ -90,6 +93,10 @@ export default class Picker extends EventEmitter {
       this.hide();
       this.trigger('picker.cancel');
     });
+
+    this.on('picker.change', (index, currentIndex) => {
+      this._setActiveClass(index, currentIndex);
+    });
   }
 
   _createWheel(wheelEl, i) {
@@ -107,6 +114,18 @@ export default class Picker extends EventEmitter {
       });
     })(i);
     return this.wheels[i];
+  }
+
+  _setActiveClass(index, currentIndex) {
+    const activeClass = 'wheel-active-item';
+    const scrollItems = Array.prototype.slice.call(this.scrollEl[index].querySelectorAll('li.wheel-item'));
+    scrollItems.forEach((scrollItem, itemIndex) => {
+      if (itemIndex === currentIndex) {
+        scrollItem.classList.add(activeClass);
+      } else if (scrollItem.classList.contains(activeClass)) {
+        scrollItem.classList.remove(activeClass);
+      }
+    });
   }
 
   show(next) {
