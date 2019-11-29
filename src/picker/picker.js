@@ -1,4 +1,5 @@
-import BScroll from 'better-scroll';
+import BScroll from '@better-scroll/core';
+import Wheel from '@better-scroll/wheel';
 import EventEmitter from '../util/eventEmitter';
 import {extend} from '../util/lang';
 import {
@@ -22,6 +23,7 @@ export default class Picker extends EventEmitter {
       showCls: 'show'
     };
     extend(this.options, options);
+    BScroll.use(Wheel);
     this._init();
   }
 
