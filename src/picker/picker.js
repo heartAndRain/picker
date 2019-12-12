@@ -42,7 +42,7 @@ export default class Picker extends EventEmitter {
     this.pickerEl = createDom(pickerTemplate({
       data: this.data,
       title: this.options.title,
-      selectedIndex: this.setSelectedIndex
+      selectedIndex: this.selectedIndex
     }));
 
     document.body.appendChild(this.pickerEl);
@@ -142,6 +142,7 @@ export default class Picker extends EventEmitter {
         this.wheels = [];
         for (let i = 0; i < this.data.length; i++) {
           this._createWheel(this.wheelEl, i);
+          this.wheels[i].wheelTo(this.selectedIndex[i]);
         }
       } else {
         for (let i = 0; i < this.data.length; i++) {
