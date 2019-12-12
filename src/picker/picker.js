@@ -28,20 +28,28 @@ export default class Picker extends EventEmitter {
   }
 
   _init() {
-    this.selectedIndex = [];
-    this.selectedVal = [];
-    if (this.options.selectedIndex) {
-      this.selectedIndex = this.options.selectedIndex;
-    } else {
+    this._createRoot(this.options.data, this.options.selectedIndex, this.options.title);
+    this._bindEvent();
+  }
+
+  _createRoot(data, selectedIndex, title) {
+    if (this.pickerEl) {
+      this.pickerEl.remove();
+    }
+
+    this.data = data;
+    if (!selectedIndex) {
       for (let i = 0; i < this.data.length; i++) {
         this.selectedIndex[i] = 0;
       }
+    } else {
+      this.selectedIndex = selectedIndex;
     }
+    this.selectedVal = [];
 
-    this.data = this.options.data;
     this.pickerEl = createDom(pickerTemplate({
       data: this.data,
-      title: this.options.title,
+      title: this.title,
       selectedIndex: this.selectedIndex
     }));
 
@@ -54,11 +62,9 @@ export default class Picker extends EventEmitter {
     this.cancelEl = this.pickerEl.getElementsByClassName('cancel-hook')[0];
     this.scrollEl = this.pickerEl.getElementsByClassName('wheel-scroll-hook');
 
-    for (let i = 0; i < this.selectedIndex.length; i++) {
-      this._setActiveClass(i, this.selectedIndex[i]);
+    for (let i = 0; i < selectedIndex.length; i++) {
+      this._setActiveClass(i, selectedIndex[i]);
     }
-
-    this._bindEvent();
   }
 
   _bindEvent() {
@@ -137,7 +143,6 @@ export default class Picker extends EventEmitter {
     window.setTimeout(() => {
       addClass(this.maskEl, showCls);
       addClass(this.panelEl, showCls);
-
       if (!this.wheels) {
         this.wheels = [];
         for (let i = 0; i < this.data.length; i++) {
@@ -170,6 +175,7 @@ export default class Picker extends EventEmitter {
   refillColumn(index, data) {
     let scrollEl = this.scrollEl[index];
     let wheel = this.wheels[index];
+
     if (scrollEl && wheel) {
       let oldData = this.data[index];
       this.data[index] = data;
@@ -202,6 +208,12 @@ export default class Picker extends EventEmitter {
       ret[index] = this.refillColumn(index, data);
     });
     return ret;
+  }
+
+  reInit(data, selectedIndex, title = '') {
+    this.wheels = null;
+    this._createRoot(data, selectedIndex, title);
+    this._bindEvent();
   }
 
   scrollColumn(index, dist) {
